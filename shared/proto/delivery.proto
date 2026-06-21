@@ -1,0 +1,53 @@
+syntax = "proto3";
+package delivery;
+
+service DeliveryService {
+  rpc RegisterDriver (DriverRegisterRequest) returns (DriverResponse);
+  rpc GetDrivers (Empty) returns (DriverList);
+  rpc UpdateDriverLocation (LocationUpdateRequest) returns (StatusResponse);
+  rpc GetDeliveryStatus (DeliveryId) returns (DeliveryResponse);
+}
+
+message Empty {}
+
+message DriverRegisterRequest {
+  string name = 1;
+  string vehicle = 2;
+}
+
+message DriverResponse {
+  string id = 1;
+  string name = 2;
+  string vehicle = 3;
+  string status = 4;
+  double lat = 5;
+  double lng = 6;
+}
+
+message DriverList {
+  repeated DriverResponse drivers = 1;
+}
+
+message LocationUpdateRequest {
+  string driver_id = 1;
+  double lat = 2;
+  double lng = 3;
+}
+
+message DeliveryId {
+  string id = 1;
+}
+
+message DeliveryResponse {
+  string id = 1;
+  string order_id = 2;
+  string driver_id = 3;
+  string driver_name = 4;
+  string status = 5;
+  string eta = 6;
+}
+
+message StatusResponse {
+  bool success = 1;
+  string message = 2;
+}

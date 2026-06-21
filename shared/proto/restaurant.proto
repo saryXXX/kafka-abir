@@ -1,0 +1,48 @@
+syntax = "proto3";
+package restaurant;
+
+service RestaurantService {
+  rpc GetRestaurants (Empty) returns (RestaurantList);
+  rpc GetMenu (RestaurantId) returns (MenuList);
+  rpc CheckAvailability (AvailabilityRequest) returns (AvailabilityResponse);
+}
+
+message Empty {}
+
+message RestaurantId {
+  string id = 1;
+}
+
+message Restaurant {
+  string id = 1;
+  string name = 2;
+  string cuisine = 3;
+  string address = 4;
+  bool is_open = 5;
+}
+
+message RestaurantList {
+  repeated Restaurant restaurants = 1;
+}
+
+message MenuItem {
+  string id = 1;
+  string name = 2;
+  double price = 3;
+  bool available = 4;
+}
+
+message MenuList {
+  repeated MenuItem items = 1;
+}
+
+message AvailabilityRequest {
+  string restaurant_id = 1;
+  repeated string item_ids = 2;
+}
+
+message AvailabilityResponse {
+  bool available = 1;
+  double total_price = 2;
+  string message = 3;
+}

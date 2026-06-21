@@ -1,0 +1,21 @@
+{
+  "name": "smart-food-delivery-app",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "gateway",
+    "services/restaurant-service",
+    "services/order-service",
+    "services/delivery-service",
+    "frontend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev -w gateway\" \"npm run dev -w services/restaurant-service\" \"npm run dev -w services/order-service\" \"npm run dev -w services/delivery-service\" \"npm run dev -w frontend\"",
+    "seed": "npm run seed -w services/restaurant-service && npm run seed -w services/order-service && npm run seed -w services/delivery-service",
+    "build": "npm run build -w gateway && npm run build -w services/restaurant-service && npm run build -w services/order-service && npm run build -w services/delivery-service && npm run build -w frontend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  }
+}
