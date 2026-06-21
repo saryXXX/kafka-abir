@@ -82,7 +82,8 @@ graph TD
 /home/sary/kafka abir/
 ├── package.json                   # Monorepo workspaces definition
 ├── docker-compose.yml             # Local Kafka & Zookeeper configuration
-├── setup.sh                       # Automation setup script
+├── setup.sh                       # Automation setup script (Linux/macOS)
+├── setup.bat                      # Automation setup script (Windows)
 ├── shared/
 │   ├── create-topics.mjs          # Kafka admin topic setup utility
 │   └── proto/                     # Protocol Buffers definitions
@@ -138,9 +139,16 @@ Decentralized transaction state transition table:
 Make sure you have `node` (v20+ recommended), `npm`, and `docker` installed.
 
 ### Step 1: Automatic Workspace Setup
-Run the unified setup script. This script installs workspace node packages, starts the Kafka container (if Docker is running), creates the topics, seeds SQLite databases, and compiles all packages:
+Run the unified setup script for your operating system. This script installs workspace node packages, starts the Kafka container (if Docker is running), creates the topics, seeds SQLite databases, and compiles all packages:
+
+**On Linux/macOS:**
 ```bash
 ./setup.sh
+```
+
+**On Windows (cmd/PowerShell):**
+```cmd
+setup.bat
 ```
 
 ### Step 2: Start the Ecosystem
