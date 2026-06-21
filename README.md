@@ -164,3 +164,13 @@ npm run dev
 4. Monitor the **Active Orders** list to watch the order progress: `PENDING` $\rightarrow$ `RESTAURANT_APPROVED` $\rightarrow$ `PREPARING` $\rightarrow$ `EN_ROUTE` $\rightarrow$ `DELIVERED`.
 5. Switch to **Kafka Events** to inspect the real-time JSON log payloads.
 6. Switch to **Driver Simulation** and click **Simulate Travel** to manually update coordinates on the telemetry grid map.
+
+### Step 4: Postman Collection & Automated API Tests
+You can import the preconfigured Postman collection to test the entire API architecture:
+1. Open Postman.
+2. Click **Import** in the top-left corner.
+3. Select the file **`DelivSaga.postman_collection.json`** located in the root of the workspace.
+4. Once imported, you will see a collection named **`DelivSaga API Collection`** with two folders: `REST API Endpoints` and `GraphQL API Endpoints`.
+5. These requests contain automated Javascript tests (`pm.test`) to validate response codes, structural contracts, and even chain data variables (e.g., automatically capturing the restaurant ID and passing it down to order requests).
+6. To run all tests at once, click the **three dots** on the collection folder $\rightarrow$ click **Run collection** $\rightarrow$ click **Run DelivSaga API Collection**.
+

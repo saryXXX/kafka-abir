@@ -1,0 +1,554 @@
+{
+  "info": {
+    "_postman_id": "ea5a298b-70c8-47bc-8d99-31ff833bfa89",
+    "name": "DelivSaga API Collection",
+    "description": "Postman collection to test the REST and GraphQL endpoints of the DelivSaga Smart Food Delivery microservices monorepo.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "REST API Endpoints",
+      "item": [
+        {
+          "name": "Get All Restaurants",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/restaurants",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "restaurants"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response returns restaurants array\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.restaurants).to.be.an('array');",
+                  "    pm.expect(jsonData.restaurants.length).to.be.above(0);",
+                  "    ",
+                  "    // Save first restaurant ID for next requests",
+                  "    pm.collectionVariables.set(\"restaurant_id\", jsonData.restaurants[0].id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Restaurant Menu",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/restaurants/{{restaurant_id}}/menu",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "restaurants",
+                "{{restaurant_id}}",
+                "menu"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response contains menu items\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.items).to.be.an('array');",
+                  "    pm.expect(jsonData.items.length).to.be.above(0);",
+                  "    pm.collectionVariables.set(\"menu_item_id\", jsonData.items[0].id);",
+                  "    pm.collectionVariables.set(\"menu_item_name\", jsonData.items[0].name);",
+                  "    pm.collectionVariables.set(\"menu_item_price\", jsonData.items[0].price);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Order (REST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"user_id\": \"user_postman\",\n  \"restaurant_id\": \"{{restaurant_id}}\",\n  \"items\": [\n    {\n      \"item_id\": \"{{menu_item_id}}\",\n      \"name\": \"{{menu_item_name}}\",\n      \"quantity\": 2,\n      \"price\": {{menu_item_price}}\n    }\n  ],\n  \"delivery_address\": \"123 Postman St, Tunis\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/orders",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Order successfully created\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.exist;",
+                  "    pm.expect(jsonData.status).to.eql(\"PENDING\");",
+                  "    pm.collectionVariables.set(\"rest_order_id\", jsonData.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/orders/{{rest_order_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "orders",
+                "{{rest_order_id}}"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Order properties are correct\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.eql(pm.collectionVariables.get(\"rest_order_id\"));",
+                  "    pm.expect(jsonData.status).to.be.oneOf([\"PENDING\", \"RESTAURANT_APPROVED\", \"PREPARING\", \"EN_ROUTE\", \"DELIVERED\"]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Drivers",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/drivers",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Returns drivers list\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.drivers).to.be.an('array');",
+                  "    pm.collectionVariables.set(\"driver_id\", jsonData.drivers[0].id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Register Driver (REST)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chaker Postman\",\n  \"vehicle\": \"Bicycle\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/drivers/register",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "drivers",
+                "register"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Driver registered successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.id).to.exist;",
+                  "    pm.expect(jsonData.name).to.eql(\"Chaker Postman\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "GraphQL API Endpoints",
+      "item": [
+        {
+          "name": "Query Restaurants",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query GetRestaurants {\n  restaurants {\n    id\n    name\n    cuisine\n    address\n    isOpen\n    menu {\n      id\n      name\n      price\n      available\n    }\n  }\n}",
+                "variables": ""
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "graphql"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"GraphQL response has restaurants list\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response.errors).to.not.exist;",
+                  "    pm.expect(response.data.restaurants).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mutation Create Order (GraphQL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation CreateOrder($userId: String!, $restaurantId: String!, $items: [OrderItemInput!]!, $deliveryAddress: String!) {\n  createOrder(user_id: $userId, restaurant_id: $restaurantId, items: $items, delivery_address: $deliveryAddress) {\n    id\n    status\n    total_price\n    created_at\n  }\n}",
+                "variables": "{\n  \"userId\": \"user_postman_gql\",\n  \"restaurantId\": \"{{restaurant_id}}\",\n  \"items\": [\n    {\n      \"itemId\": \"{{menu_item_id}}\",\n      \"name\": \"{{menu_item_name}}\",\n      \"quantity\": 1,\n      \"price\": {{menu_item_price}}\n    }\n  ],\n  \"deliveryAddress\": \"456 GraphQL Ave, Tunis\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "graphql"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"GraphQL Order created successfully\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response.errors).to.not.exist;",
+                  "    pm.expect(response.data.createOrder.id).to.exist;",
+                  "    pm.collectionVariables.set(\"gql_order_id\", response.data.createOrder.id);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Query Order Tracking (GraphQL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "query GetOrder($id: ID!) {\n  order(id: $id) {\n    id\n    status\n    totalPrice\n    items {\n      name\n      quantity\n    }\n    delivery {\n      driverName\n      status\n      eta\n    }\n  }\n}",
+                "variables": "{\n  \"id\": \"{{gql_order_id}}\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "graphql"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"GraphQL order matches requirements\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response.errors).to.not.exist;",
+                  "    pm.expect(response.data.order.id).to.eql(pm.collectionVariables.get(\"gql_order_id\"));",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mutation Register Driver (GraphQL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation RegisterDriver($name: String!, $vehicle: String!) {\n  registerDriver(name: $name, vehicle: $vehicle) {\n    id\n    name\n    vehicle\n    status\n  }\n}",
+                "variables": "{\n  \"name\": \"Chokri GraphQL\",\n  \"vehicle\": \"Motorcycle\"\n}"
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "graphql"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"GraphQL Driver registered correctly\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response.errors).to.not.exist;",
+                  "    pm.expect(response.data.registerDriver.name).to.eql(\"Chokri GraphQL\");",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Mutation Update Location (GraphQL)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "graphql",
+              "graphql": {
+                "query": "mutation UpdateLocation($driverId: ID!, $lat: Float!, $lng: Float!) {\n  updateDriverLocation(driverId: $driverId, lat: $lat, lng: $lng)\n}",
+                "variables": "{\n  \"driverId\": \"{{driver_id}}\",\n  \"lat\": 36.8123,\n  \"lng\": 10.1982\n}"
+              }
+            },
+            "url": {
+              "raw": "{{base_url}}/graphql",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "graphql"
+              ]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"GraphQL location coordinates updated\", function () {",
+                  "    var response = pm.response.json();",
+                  "    pm.expect(response.errors).to.not.exist;",
+                  "    pm.expect(response.data.updateDriverLocation).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "restaurant_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menu_item_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menu_item_name",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "menu_item_price",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "rest_order_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "gql_order_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "driver_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
